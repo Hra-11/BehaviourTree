@@ -1,0 +1,58 @@
+<root BTCPP_format="4" main_tree_to_execute="RoboconMainTree">
+    <BehaviorTree ID="RoboconMainTree">
+        <Sequence>
+            <Sequence name="Stage1_Init">
+                <CheckSystemReady/>
+                <WaitMatchStart/>
+                <Sleep msec="10000"/>
+            </Sequence>
+
+            <SubTree ID="WeaponAcquisitionPhase" />
+
+            <SubTree ID="TerrainTraversalPhase" />
+
+            <SubTree ID="FinalCombatPhase" />
+        </Sequence>
+    </BehaviorTree>
+
+    <BehaviorTree ID="WeaponAcquisitionPhase">
+        <Sequence>
+            <Nav2Client target_pose="WEAPON_AREA" />
+            
+            <DetectItem item_name="SPEARHEAD" output_pose="{spearhead_pose}"/>
+            <AlignToPose target_pose="{spearhead_pose}" tolerance="0.05"/>
+            <OperateGripper action="GRAB_HEAD"/>
+
+            <DetectItem item_name="SPEARSHAFT" output_pose="{shaft_pose}"/>
+            <AlignToPose target_pose="{shaft_pose}" tolerance="0.05"/>
+            <OperateGripper action="GRAB_SHAFT"/>
+            
+            <AssembleWeapon/>
+        </Sequence>
+    </BehaviorTree>
+
+    <BehaviorTree ID="TerrainTraversalPhase">
+        <Sequence>
+            <Nav2Client target_pose="MEILIN_START_POINT" />
+            <DetectItem item_name="FIRST_POLE" output_pose="{pole_pose}"/>
+            <AlignToPose target_pose="{pole_pose}" tolerance="0.02"/>
+
+            <SetLocomotionGait gait_type="PLUM_POLE_CLIMB"/>
+            <ExecuteGaitMacro macro_name="TRAVERSE_MEILIN"/>
+            <SetLocomotionGait gait_type="TROT_NORMAL"/>
+        </Sequence>
+    </BehaviorTree>
+
+    <BehaviorTree ID="FinalCombatPhase">
+        <Sequence>
+            <TrackEnemy output_enemy_pose="{enemy_pose}" output_enemy_state="{enemy_state}"/>
+            <Fallback>
+                <Sequence>
+                    <IsEnemyInRange target_pose="{enemy_pose}" attack_radius="2.0"/>
+                    <ExecuteAttack target_pose="{enemy_pose}"/>
+                </Sequence>
+                <DynamicPursuit target_pose="{enemy_pose}" optimal_distance="2.5"/>
+            </Fallback>
+        </Sequence>
+    </BehaviorTree>
+</root>
