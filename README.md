@@ -44,7 +44,7 @@ source install/setup.bash
 python3 src/bt_logic/scripts/mock_nav2_server.py
 
 # 终端 2: 启动行为树主程序
-ros2 run bt_logic bt_main
+ros2 run bt_logic bt_logic_node
 ```
 
 ##后续开发与优化计划 (TODOs)
